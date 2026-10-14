@@ -12,7 +12,7 @@ void s21_remove_matrix(s21_matrix *A) {
 
     free(A->matrix);
     A->matrix = NULL;
-    A->rows = NULL;
-    A->columns = NULL;
+    A->rows = 0;
+    A->columns = 0;
   }
 }
