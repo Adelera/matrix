@@ -3,7 +3,7 @@ CFLAGS = -Wall -Werror -Wextra -std=c11 -g
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage
 LIBS = -lcheck -lsubunit -lm -lpthread -lrt
 TARGET = s21_matrix.a
-SRCS = s21_create_matrix.c s21_remove_matrix.c s21_eq_matrix.c
+SRCS = s21_create_matrix.c s21_remove_matrix.c s21_eq_matrix.c s21_sum_matrix.c
 OBJS = $(SRCS:.c=.o)
 TEST_SRCS = s21_test.c
 TEST_BIN = test_bin
