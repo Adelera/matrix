@@ -1,4 +1,5 @@
 #include <check.h>
+#include <float.h>
 #include <stdlib.h>
 
 #include "s21_matrix.h"
@@ -165,6 +166,123 @@ START_TEST(sum_matrix_nan) {
   s21_remove_matrix(&result);
 }
 
+START_TEST(sum_matrix_overflow) {
+  s21_matrix A, B, result;
+  s21_create_matrix(1, 1, &A);
+  s21_create_matrix(1, 1, &B);
+
+  A.matrix[0][0] = DBL_MAX;
+  B.matrix[0][0] = DBL_MAX;
+
+  int status = s21_sum_matrix(&A, &B, &result);
+  ck_assert_int_eq(status, 2);
+
+  s21_remove_matrix(&A);
+  s21_remove_matrix(&B);
+}
+END_TEST
+
+// ТЕСТЫ ДЛЯ s21_sub_matrix.c
+START_TEST(sub_matrix_normal) {
+  s21_matrix A, B, result, expected;
+
+  ck_assert_int_eq(s21_create_matrix(1, 3, &A), 0);
+  ck_assert_int_eq(s21_create_matrix(1, 3, &B), 0);
+  ck_assert_int_eq(s21_create_matrix(1, 3, &expected), 0);
+
+  A.matrix[0][0] = 5.0;
+  A.matrix[0][1] = 10.0;
+  A.matrix[0][2] = 15.0;
+  B.matrix[0][0] = 1.0;
+  B.matrix[0][1] = 2.0;
+  B.matrix[0][2] = 3.0;
+
+  expected.matrix[0][0] = 4.0;
+  expected.matrix[0][1] = 8.0;
+  expected.matrix[0][2] = 12.0;
+
+  int status = s21_sub_matrix(&A, &B, &result);
+  ck_assert_int_eq(status, 0);
+  ck_assert_int_eq(s21_eq_matrix(&result, &expected), 1);
+
+  s21_remove_matrix(&A);
+  s21_remove_matrix(&B);
+  s21_remove_matrix(&result);
+  s21_remove_matrix(&expected);
+}
+END_TEST
+
+// ТЕСТЫ ДЛЯ s21_mult_number.c
+START_TEST(mult_number_normal) {
+  s21_matrix A, result, expected;
+  double number = 2.0;
+  ck_assert_int_eq(s21_create_matrix(2, 3, &A), 0);
+  ck_assert_int_eq(s21_create_matrix(2, 3, &expected), 0);
+
+  A.matrix[0][0] = 1.0;
+  A.matrix[0][1] = 2.0;
+  A.matrix[0][2] = 3.0;
+  A.matrix[1][0] = 0.0;
+  A.matrix[1][1] = 4.0;
+  A.matrix[1][2] = -2.0;
+
+  expected.matrix[0][0] = 2.0;
+  expected.matrix[0][1] = 4.0;
+  expected.matrix[0][2] = 6.0;
+  expected.matrix[1][0] = 0.0;
+  expected.matrix[1][1] = 8.0;
+  expected.matrix[1][2] = -4.0;
+
+  int status = s21_mult_number(&A, number, &result);
+  ck_assert_int_eq(status, 0);
+  ck_assert_int_eq(s21_eq_matrix(&result, &expected), 1);
+
+  s21_remove_matrix(&A);
+  s21_remove_matrix(&result);
+  s21_remove_matrix(&expected);
+}
+
+// ТЕСТЫ ДЛЯ s21_mult_matrix.c
+START_TEST(mult_matrix_normal) {
+  s21_matrix A, B, result, expected;
+  ck_assert_int_eq(s21_create_matrix(3, 2, &A), 0);
+  ck_assert_int_eq(s21_create_matrix(2, 3, &B), 0);
+  ck_assert_int_eq(s21_create_matrix(3, 3, &expected), 0);
+
+  A.matrix[0][0] = 1.0;
+  A.matrix[0][1] = 4.0;
+  A.matrix[1][0] = 2.0;
+  A.matrix[1][1] = 5.0;
+  A.matrix[2][0] = 3.0;
+  A.matrix[2][1] = 6.0;
+
+  B.matrix[0][0] = 1.0;
+  B.matrix[0][1] = -1.0;
+  B.matrix[0][2] = 1.0;
+  B.matrix[1][0] = 2.0;
+  B.matrix[1][1] = 3.0;
+  B.matrix[1][2] = 4.0;
+
+  expected.matrix[0][0] = 9.0;
+  expected.matrix[0][1] = 11.0;
+  expected.matrix[0][2] = 17.0;
+  expected.matrix[1][0] = 12.0;
+  expected.matrix[1][1] = 13.0;
+  expected.matrix[1][2] = 22.0;
+  expected.matrix[2][0] = 15.0;
+  expected.matrix[2][1] = 15.0;
+  expected.matrix[2][2] = 27.0;
+
+  int status = s21_mult_matrix(&A, &B, &result);
+  ck_assert_int_eq(status, 0);
+  ck_assert_int_eq(s21_eq_matrix(&result, &expected), 1);
+
+  s21_remove_matrix(&A);
+  s21_remove_matrix(&B);
+  s21_remove_matrix(&result);
+  s21_remove_matrix(&expected);
+}
+
 int main(void) {
   Suite *suite = suite_create("s21_matrix");
   TCase *tcase_core = tcase_create("core");
@@ -180,6 +298,13 @@ int main(void) {
   tcase_add_test(tcase_core, sum_matrix_not_exist);
   tcase_add_test(tcase_core, sum_matrix_not_correct_rows);
   tcase_add_test(tcase_core, sum_matrix_nan);
+  tcase_add_test(tcase_core, sum_matrix_overflow);
+
+  tcase_add_test(tcase_core, sub_matrix_normal);
+
+  tcase_add_test(tcase_core, mult_number_normal);
+
+  tcase_add_test(tcase_core, mult_matrix_normal);
 
   suite_add_tcase(suite, tcase_core);
 
