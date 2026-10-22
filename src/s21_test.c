@@ -312,6 +312,28 @@ START_TEST(transpose_normal) {
   s21_remove_matrix(&expected);
 }
 
+START_TEST(determinant_normal) {
+  s21_matrix A;
+  double result;
+  ck_assert_int_eq(s21_create_matrix(3, 3, &A), 0);
+
+  A.matrix[0][0] = 1.0;
+  A.matrix[0][1] = 2.0;
+  A.matrix[0][2] = 3.0;
+  A.matrix[1][0] = 4.0;
+  A.matrix[1][1] = 5.0;
+  A.matrix[1][2] = 6.0;
+  A.matrix[2][0] = 7.0;
+  A.matrix[2][1] = 8.0;
+  A.matrix[2][2] = 9.0;
+
+  int status = s21_determinant(&A, &result);
+  ck_assert_int_eq(status, 0);
+  ck_assert_double_eq_tol(result, 0.0, 1e-7);
+
+  s21_remove_matrix(&A);
+}
+
 int main(void) {
   Suite *suite = suite_create("s21_matrix");
   TCase *tcase_core = tcase_create("core");
@@ -336,6 +358,8 @@ int main(void) {
   tcase_add_test(tcase_core, mult_matrix_normal);
 
   tcase_add_test(tcase_core, transpose_normal);
+
+  tcase_add_test(tcase_core, determinant_normal);
 
   suite_add_tcase(suite, tcase_core);
 

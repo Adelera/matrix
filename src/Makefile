@@ -4,7 +4,8 @@ GCOV_FLAGS = -fprofile-arcs -ftest-coverage
 LIBS = -lcheck -lsubunit -lm -lpthread -lrt
 TARGET = s21_matrix.a
 SRCS = s21_create_matrix.c s21_remove_matrix.c s21_eq_matrix.c s21_sum_matrix.c \
-				s21_sub_matrix.c s21_mult_number.c s21_mult_matrix.c s21_transpose.c
+				s21_sub_matrix.c s21_mult_number.c s21_mult_matrix.c s21_transpose.c \
+				s21_determinant.c
 OBJS = $(SRCS:.c=.o)
 TEST_SRCS = s21_test.c
 TEST_BIN = test_bin
