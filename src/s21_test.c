@@ -283,6 +283,35 @@ START_TEST(mult_matrix_normal) {
   s21_remove_matrix(&expected);
 }
 
+// ТЕСТЫ ДЛЯ s21_transpose.c
+START_TEST(transpose_normal) {
+  s21_matrix A, result, expected;
+  ck_assert_int_eq(s21_create_matrix(3, 2, &A), 0);
+  ck_assert_int_eq(s21_create_matrix(2, 3, &expected), 0);
+
+  A.matrix[0][0] = 1.0;
+  A.matrix[0][1] = 4.0;
+  A.matrix[1][0] = 2.0;
+  A.matrix[1][1] = 5.0;
+  A.matrix[2][0] = 3.0;
+  A.matrix[2][1] = 6.0;
+
+  expected.matrix[0][0] = 1.0;
+  expected.matrix[0][1] = 2.0;
+  expected.matrix[0][2] = 3.0;
+  expected.matrix[1][0] = 4.0;
+  expected.matrix[1][1] = 5.0;
+  expected.matrix[1][2] = 6.0;
+
+  int status = s21_transpose(&A, &result);
+  ck_assert_int_eq(status, 0);
+  ck_assert_int_eq(s21_eq_matrix(&result, &expected), 1);
+
+  s21_remove_matrix(&A);
+  s21_remove_matrix(&result);
+  s21_remove_matrix(&expected);
+}
+
 int main(void) {
   Suite *suite = suite_create("s21_matrix");
   TCase *tcase_core = tcase_create("core");
@@ -305,6 +334,8 @@ int main(void) {
   tcase_add_test(tcase_core, mult_number_normal);
 
   tcase_add_test(tcase_core, mult_matrix_normal);
+
+  tcase_add_test(tcase_core, transpose_normal);
 
   suite_add_tcase(suite, tcase_core);
 
