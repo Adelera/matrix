@@ -312,6 +312,7 @@ START_TEST(transpose_normal) {
   s21_remove_matrix(&expected);
 }
 
+// ТЕСТЫ ДЛЯ s21_determinant
 START_TEST(determinant_normal) {
   s21_matrix A;
   double result;
@@ -332,6 +333,43 @@ START_TEST(determinant_normal) {
   ck_assert_double_eq_tol(result, 0.0, 1e-7);
 
   s21_remove_matrix(&A);
+}
+
+// ТЕСТЫ ДЛЯ s21_calc_complements
+START_TEST(complements_normal) {
+  s21_matrix A;
+  s21_matrix result;
+  s21_matrix expected;
+  ck_assert_int_eq(s21_create_matrix(3, 3, &A), 0);
+  ck_assert_int_eq(s21_create_matrix(3, 3, &expected), 0);
+
+  A.matrix[0][0] = 1.0;
+  A.matrix[0][1] = 2.0;
+  A.matrix[0][2] = 3.0;
+  A.matrix[1][0] = 0.0;
+  A.matrix[1][1] = 4.0;
+  A.matrix[1][2] = 2.0;
+  A.matrix[2][0] = 5.0;
+  A.matrix[2][1] = 2.0;
+  A.matrix[2][2] = 1.0;
+
+  expected.matrix[0][0] = 0.0;
+  expected.matrix[0][1] = 10.0;
+  expected.matrix[0][2] = -20.0;
+  expected.matrix[1][0] = 4.0;
+  expected.matrix[1][1] = -14.0;
+  expected.matrix[1][2] = 8.0;
+  expected.matrix[2][0] = -8.0;
+  expected.matrix[2][1] = -2.0;
+  expected.matrix[2][2] = 4.0;
+
+  int status = s21_calc_complements(&A, &result);
+  ck_assert_int_eq(status, 0);
+  ck_assert_int_eq(s21_eq_matrix(&result, &expected), 1);
+
+  s21_remove_matrix(&A);
+  s21_remove_matrix(&expected);
+  s21_remove_matrix(&result);
 }
 
 int main(void) {
@@ -360,6 +398,8 @@ int main(void) {
   tcase_add_test(tcase_core, transpose_normal);
 
   tcase_add_test(tcase_core, determinant_normal);
+
+  tcase_add_test(tcase_core, complements_normal);
 
   suite_add_tcase(suite, tcase_core);
 
