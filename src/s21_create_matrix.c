@@ -16,10 +16,6 @@ int s21_create_matrix(int rows, int columns, s21_matrix *result) {
   } else {
     for (int i = 0; i < rows && status == 0; i++) {
       result->matrix[i] = (double *)calloc(columns, sizeof(double));
-      if (result->matrix[i] == NULL) {
-        s21_remove_matrix(result);
-        status = 1;
-      }
     }
   }
 

@@ -212,6 +212,28 @@ START_TEST(sub_matrix_normal) {
 }
 END_TEST
 
+START_TEST(sub_matrix_wrong_sizes) {
+  s21_matrix A, B, result;
+
+  ck_assert_int_eq(s21_create_matrix(1, 3, &A), 0);
+  ck_assert_int_eq(s21_create_matrix(2, 3, &B), 0);
+
+  int status = s21_sub_matrix(&A, &B, &result);
+  ck_assert_int_eq(status, 2);
+
+  s21_remove_matrix(&A);
+  s21_remove_matrix(&B);
+}
+END_TEST
+
+START_TEST(sub_matrix_null) {
+  s21_matrix B, result;
+
+  int status = s21_sub_matrix(NULL, &B, &result);
+  ck_assert_int_eq(status, 1);
+}
+END_TEST
+
 // ТЕСТЫ ДЛЯ s21_mult_number.c
 START_TEST(mult_number_normal) {
   s21_matrix A, result, expected;
@@ -240,6 +262,33 @@ START_TEST(mult_number_normal) {
   s21_remove_matrix(&A);
   s21_remove_matrix(&result);
   s21_remove_matrix(&expected);
+}
+
+START_TEST(mult_number_nan) {
+  s21_matrix A, result;
+  ck_assert_int_eq(s21_create_matrix(2, 3, &A), 0);
+  double number = NAN;
+
+  A.matrix[0][0] = 1.0;
+  A.matrix[0][1] = 2.0;
+  A.matrix[0][2] = 3.0;
+  A.matrix[1][0] = 0.0;
+  A.matrix[1][1] = 4.0;
+  A.matrix[1][2] = -2.0;
+
+  int status = s21_mult_number(&A, number, &result);
+  ck_assert_int_eq(status, 2);
+
+  s21_remove_matrix(&A);
+  s21_remove_matrix(&result);
+}
+
+START_TEST(mult_number_null) {
+  s21_matrix result;
+  double number = 2.0;
+
+  int status = s21_mult_number(NULL, number, &result);
+  ck_assert_int_eq(status, 1);
 }
 
 // ТЕСТЫ ДЛЯ s21_mult_matrix.c
@@ -283,6 +332,28 @@ START_TEST(mult_matrix_normal) {
   s21_remove_matrix(&expected);
 }
 
+START_TEST(mult_matrix_null) {
+  s21_matrix B, result;
+  ck_assert_int_eq(s21_create_matrix(2, 3, &B), 0);
+
+  int status = s21_mult_matrix(NULL, &B, &result);
+  ck_assert_int_eq(status, 1);
+
+  s21_remove_matrix(&B);
+}
+
+START_TEST(mult_matrix_wrong_sizes) {
+  s21_matrix A, B, result;
+  ck_assert_int_eq(s21_create_matrix(3, 2, &A), 0);
+  ck_assert_int_eq(s21_create_matrix(3, 3, &B), 0);
+
+  int status = s21_mult_matrix(&A, &B, &result);
+  ck_assert_int_eq(status, 2);
+
+  s21_remove_matrix(&A);
+  s21_remove_matrix(&B);
+}
+
 // ТЕСТЫ ДЛЯ s21_transpose.c
 START_TEST(transpose_normal) {
   s21_matrix A, result, expected;
@@ -312,6 +383,13 @@ START_TEST(transpose_normal) {
   s21_remove_matrix(&expected);
 }
 
+START_TEST(transpose_null) {
+  s21_matrix result;
+
+  int status = s21_transpose(NULL, &result);
+  ck_assert_int_eq(status, 1);
+}
+
 // ТЕСТЫ ДЛЯ s21_determinant
 START_TEST(determinant_normal) {
   s21_matrix A;
@@ -331,6 +409,38 @@ START_TEST(determinant_normal) {
   int status = s21_determinant(&A, &result);
   ck_assert_int_eq(status, 0);
   ck_assert_double_eq_tol(result, 0.0, 1e-7);
+
+  s21_remove_matrix(&A);
+}
+
+START_TEST(determinant_null) {
+  double result;
+
+  int status = s21_determinant(NULL, &result);
+  ck_assert_int_eq(status, 1);
+}
+
+START_TEST(determinant_2x2) {
+  s21_matrix A;
+  double result;
+  ck_assert_int_eq(s21_create_matrix(1, 1, &A), 0);
+
+  A.matrix[0][0] = 1.0;
+
+  int status = s21_determinant(&A, &result);
+  ck_assert_int_eq(status, 0);
+  ck_assert_double_eq_tol(result, 1.0, 1e-7);
+
+  s21_remove_matrix(&A);
+}
+
+START_TEST(determinant_wrong_size) {
+  s21_matrix A;
+  double result;
+  ck_assert_int_eq(s21_create_matrix(3, 1, &A), 0);
+
+  int status = s21_determinant(&A, &result);
+  ck_assert_int_eq(status, 2);
 
   s21_remove_matrix(&A);
 }
@@ -372,6 +482,64 @@ START_TEST(complements_normal) {
   s21_remove_matrix(&result);
 }
 
+START_TEST(complements_null) {
+  s21_matrix result;
+  int status = s21_calc_complements(NULL, &result);
+  ck_assert_int_eq(status, 1);
+}
+
+START_TEST(complements_wrong_size) {
+  s21_matrix A;
+  s21_matrix result;
+  ck_assert_int_eq(s21_create_matrix(2, 3, &A), 0);
+  int status = s21_calc_complements(&A, &result);
+  ck_assert_int_eq(status, 2);
+}
+
+// ТЕСТЫ ДЛЯ s21_inverse_matrix.c
+START_TEST(inverse_normal) {
+  s21_matrix A;
+  s21_matrix result;
+  s21_matrix expected;
+  ck_assert_int_eq(s21_create_matrix(3, 3, &A), 0);
+  ck_assert_int_eq(s21_create_matrix(3, 3, &expected), 0);
+
+  A.matrix[0][0] = 2.0;
+  A.matrix[0][1] = 5.0;
+  A.matrix[0][2] = 7.0;
+  A.matrix[1][0] = 6.0;
+  A.matrix[1][1] = 3.0;
+  A.matrix[1][2] = 4.0;
+  A.matrix[2][0] = 5.0;
+  A.matrix[2][1] = -2.0;
+  A.matrix[2][2] = -3.0;
+
+  expected.matrix[0][0] = 1.0;
+  expected.matrix[0][1] = -1.0;
+  expected.matrix[0][2] = 1.0;
+  expected.matrix[1][0] = -38.0;
+  expected.matrix[1][1] = 41.0;
+  expected.matrix[1][2] = -34.0;
+  expected.matrix[2][0] = 27.0;
+  expected.matrix[2][1] = -29.0;
+  expected.matrix[2][2] = 24.0;
+
+  int status = s21_inverse_matrix(&A, &result);
+  ck_assert_int_eq(status, 0);
+  ck_assert_int_eq(s21_eq_matrix(&result, &expected), 1);
+
+  s21_remove_matrix(&A);
+  s21_remove_matrix(&expected);
+  s21_remove_matrix(&result);
+}
+
+START_TEST(inverse_null) {
+  s21_matrix result;
+
+  int status = s21_inverse_matrix(NULL, &result);
+  ck_assert_int_eq(status, 1);
+}
+
 int main(void) {
   Suite *suite = suite_create("s21_matrix");
   TCase *tcase_core = tcase_create("core");
@@ -390,16 +558,31 @@ int main(void) {
   tcase_add_test(tcase_core, sum_matrix_overflow);
 
   tcase_add_test(tcase_core, sub_matrix_normal);
+  tcase_add_test(tcase_core, sub_matrix_wrong_sizes);
+  tcase_add_test(tcase_core, sub_matrix_null);
 
   tcase_add_test(tcase_core, mult_number_normal);
+  tcase_add_test(tcase_core, mult_number_nan);
+  tcase_add_test(tcase_core, mult_number_null);
 
   tcase_add_test(tcase_core, mult_matrix_normal);
+  tcase_add_test(tcase_core, mult_matrix_null);
+  tcase_add_test(tcase_core, mult_matrix_wrong_sizes);
 
   tcase_add_test(tcase_core, transpose_normal);
+  tcase_add_test(tcase_core, transpose_null);
 
   tcase_add_test(tcase_core, determinant_normal);
+  tcase_add_test(tcase_core, determinant_null);
+  tcase_add_test(tcase_core, determinant_2x2);
+  tcase_add_test(tcase_core, determinant_wrong_size);
 
   tcase_add_test(tcase_core, complements_normal);
+  tcase_add_test(tcase_core, complements_null);
+  tcase_add_test(tcase_core, complements_wrong_size);
+
+  tcase_add_test(tcase_core, inverse_normal);
+  tcase_add_test(tcase_core, inverse_null);
 
   suite_add_tcase(suite, tcase_core);
 

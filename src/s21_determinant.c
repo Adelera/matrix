@@ -27,18 +27,18 @@ int s21_determinant(s21_matrix *A, double *result) {
       for (int j = 0; j < A->columns && status == 0; j++) {
         s21_matrix sub_A;
         status = create_subMatrix(A, 0, j, &sub_A);
+        double sub_determinant = 0;
 
         if (status == 0) {
-          double sub_determinant = 0;
           status = s21_determinant(&sub_A, &sub_determinant);
-
-          if (status == 0) {
-            determinant += sign * A->matrix[0][j] * sub_determinant;
-          }
-
-          s21_remove_matrix(&sub_A);
-          sign = -sign;
         }
+
+        if (status == 0) {
+          determinant += sign * A->matrix[0][j] * sub_determinant;
+        }
+
+        s21_remove_matrix(&sub_A);
+        sign = -sign;
       }
     }
   } else {
